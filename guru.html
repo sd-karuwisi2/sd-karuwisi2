@@ -152,9 +152,29 @@
             if (!html5QrcodeScanner) {
                 html5QrcodeScanner = new Html5QrcodeScanner(
                     "reader",
-                    { fps: 10, qrbox: {width: 250, height: 250}, aspectRatio: 1.0 },
+                    { 
+                        fps: 10, 
+                        qrbox: {width: 250, height: 250}, 
+                        aspectRatio: 1.0,
+                        videoConstraints: { facingMode: "environment" } // Paksa kamera belakang
+                    },
                     false);
                 html5QrcodeScanner.render(onScanSuccess, (err) => {});
+                
+                // Terjemahkan UI Scanner ke Bahasa Indonesia
+                setInterval(() => {
+                    const btnPerm = document.getElementById('html5-qrcode-button-camera-permission');
+                    if (btnPerm && btnPerm.innerText.includes('Request')) btnPerm.innerText = 'Izinkan Akses Kamera';
+                    
+                    const btnStart = document.getElementById('html5-qrcode-button-camera-start');
+                    if (btnStart && btnStart.innerText.includes('Start')) btnStart.innerText = 'Mulai Kamera';
+                    
+                    const btnStop = document.getElementById('html5-qrcode-button-camera-stop');
+                    if (btnStop && btnStop.innerText.includes('Stop')) btnStop.innerText = 'Matikan Kamera';
+                    
+                    const fileScan = document.getElementById('html5-qrcode-anchor-scan-type-change');
+                    if (fileScan) fileScan.style.display = 'none'; // Sembunyikan scan via file
+                }, 500);
             } else {
                 html5QrcodeScanner.resume();
             }
@@ -168,38 +188,48 @@
             document.getElementById('scannerArea').style.display = 'none';
         }
 
+        function playSuccessBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                osc.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.2); // Beep selama 0.2 detik
+            } catch(e) {}
+        }
+
         async function onScanSuccess(decodedText, decodedResult) {
             if (isProcessing) return;
             
             isProcessing = true;
             html5QrcodeScanner.pause();
+            playSuccessBeep(); // Bunyikan Beep!
             
             const resultCard = document.getElementById('resultCard');
             const resultIcon = document.getElementById('resultIcon');
             const resultTitle = document.getElementById('resultTitle');
             const resultMessage = document.getElementById('resultMessage');
             
-            document.getElementById('scannerArea').style.display = 'none';
             resultCard.style.display = 'block';
-            resultCard.style.borderTopColor = 'var(--primary)';
-            resultIcon.innerHTML = '<i data-lucide="loader-2" class="spin" style="width: 64px; height: 64px; color: var(--primary);"></i>';
+            resultIcon.innerHTML = `<i data-lucide="loader" class="spin" style="width: 48px; height: 48px; color: var(--primary);"></i>`;
             resultTitle.textContent = "Memproses...";
-            resultMessage.textContent = `Menyimpan absensi ${selectedStatus}...`;
+            resultMessage.textContent = "Mengirim data ke server...";
             lucide.createIcons();
-            
+
             try {
-                // The barcode should match the static payload
                 const payload = JSON.parse(decodedText);
-                const today = new Date().toISOString().split('T')[0];
-                const timeString = new Date().toLocaleTimeString('id-ID');
+                const today = new Date();
+                const dateString = today.toLocaleDateString('en-CA');
+                const timeString = today.toLocaleTimeString('id-ID', { hour12: false });
                 
                 if (payload.type === "ABSENQ_ATTENDANCE" && payload.school === "UPT_SPF_SD_INPRES_KARUWISI_2") {
                     
                     if (CONFIG.GOOGLE_SHEETS_API_URL === "URL_WEB_APP_ANDA_DISINI") {
-                        // FALLBACK DEMO MODE
                         const allRecords = JSON.parse(localStorage.getItem('demo_attendance') || '[]');
                         allRecords.push({
-                            date: today,
+                            date: dateString,
                             time: timeString,
                             name: user.name,
                             kelas: user.kelas,
@@ -217,7 +247,7 @@
                                 'Content-Type': 'text/plain;charset=utf-8' 
                             },
                             body: JSON.stringify({
-                                date: today,
+                                date: dateString,
                                 time: timeString,
                                 name: user.name,
                                 kelas: user.kelas,
@@ -250,12 +280,12 @@
             
             lucide.createIcons();
 
-            // Return to selection mode after 3 seconds
+            // Tahan notifikasi selama 6 detik agar guru sempat melihatnya
             setTimeout(() => {
                 resultCard.style.display = 'none';
                 document.getElementById('selectionMode').style.display = 'block';
                 isProcessing = false;
-            }, 3000);
+            }, 6000);
         }
 
         // --- FITUR GANTI PASSWORD ---
