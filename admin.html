@@ -172,8 +172,10 @@
             } else {
                 // REAL MODE (Google Sheets)
                 try {
-                    // AMBIL SEMUA DATA (Tanpa filter date) untuk menghindari bug format Date di Google Sheets
-                    const response = await fetch(`${CONFIG.GOOGLE_SHEETS_API_URL}`);
+                    // AMBIL SEMUA DATA (Tanpa filter date) untuk menghindari bug format Date di Google Sheets. 
+                    // Tambahkan t= timestamp agar browser tidak melakukan cache (selalu update)
+                    const fetchUrl = `${CONFIG.GOOGLE_SHEETS_API_URL}?t=${new Date().getTime()}`;
+                    const response = await fetch(fetchUrl);
                     const allRecords = await response.json();
                     
                     // Filter di sisi klien
