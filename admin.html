@@ -24,6 +24,9 @@
             </div>
             <div class="nav-user">
                 <span>Admin</span>
+                <button onclick="showChangePasswordModal()" class="btn btn-outline" style="padding: 0.5rem 1rem; margin-right: 0.5rem;">
+                    <i data-lucide="key" style="width: 18px; height: 18px;"></i> Password
+                </button>
                 <button onclick="logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; color: var(--danger);">
                     <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> Keluar
                 </button>
@@ -169,8 +172,35 @@
             } else {
                 // REAL MODE (Google Sheets)
                 try {
-                    const response = await fetch(`${CONFIG.GOOGLE_SHEETS_API_URL}?date=${dateString}`);
-                    records = await response.json();
+                    // AMBIL SEMUA DATA (Tanpa filter date) untuk menghindari bug format Date di Google Sheets
+                    const response = await fetch(`${CONFIG.GOOGLE_SHEETS_API_URL}`);
+                    const allRecords = await response.json();
+                    
+                    // Filter di sisi klien
+                    records = allRecords.filter(r => {
+                        if (!r.date) return false;
+                        
+                        // 1. Jika teks persis sama (misal "2026-08-30")
+                        if (String(r.date) === dateString) return true;
+                        
+                        // 2. Jika Google Sheets mengubahnya menjadi format waktu ISO (contoh: "2026-08-29T16:00:00.000Z")
+                        try {
+                            const d = new Date(r.date);
+                            if (!isNaN(d.getTime())) {
+                                // Google Sheets menyimpan string date sebagai midnight UTC atau Local. 
+                                // Cara teraman mengecek adalah mencocokkan substring ISO
+                                const iso = d.toISOString(); // "2026-08-29T..." atau "2026-08-30T..."
+                                if (iso.includes(dateString)) return true;
+                                
+                                // Coba format lokal (en-CA mengembalikan YYYY-MM-DD)
+                                const local = d.toLocaleDateString('en-CA');
+                                if (local === dateString) return true;
+                            }
+                        } catch(e) {}
+                        
+                        // 3. Pengecekan longgar
+                        return String(r.date).includes(dateString);
+                    });
                 } catch (error) {
                     console.error("Error fetching data:", error);
                     tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--danger); padding: 2rem;">Gagal memuat data dari Google Sheets. Pastikan URL benar.</td></tr>';
@@ -262,8 +292,74 @@
             // Buat file dan trigger download
             XLSX.writeFile(workbook, `Laporan_Absensi_${dateString}.xlsx`);
         }
-
         loadAttendance();
+
+        // --- FITUR GANTI PASSWORD ---
+        function showChangePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        function saveNewPassword() {
+            const newPass = document.getElementById('newPassword').value.trim();
+            const confirmPass = document.getElementById('confirmPassword').value.trim();
+            
+            if (newPass.length < 4) {
+                alert("Password terlalu pendek (Minimal 4 karakter)");
+                return;
+            }
+            if (newPass !== confirmPass) {
+                alert("Konfirmasi password tidak cocok!");
+                return;
+            }
+            
+            // Simpan password ke LocalStorage
+            const customPasswords = JSON.parse(localStorage.getItem('custom_passwords') || '{}');
+            customPasswords['admin'] = newPass; // Admin selalu username 'admin'
+            localStorage.setItem('custom_passwords', JSON.stringify(customPasswords));
+            
+            alert("Password berhasil diubah!");
+            closePasswordModal();
+        }
     </script>
+
+    <!-- Modal Ganti Password -->
+    <div id="passwordModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Ganti Password</h3>
+            <div class="form-group" style="text-align: left;">
+                <label>Password Baru</label>
+                <input type="password" id="newPassword" class="form-control" placeholder="Minimal 4 karakter">
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label>Konfirmasi Password Baru</label>
+                <input type="password" id="confirmPassword" class="form-control" placeholder="Ulangi password baru">
+            </div>
+            <div class="modal-buttons">
+                <button onclick="closePasswordModal()" class="btn btn-outline" style="border: 1px solid var(--border); padding: 0.5rem 1rem;">Batal</button>
+                <button onclick="saveNewPassword()" class="btn btn-primary" style="padding: 0.5rem 1rem;">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .modal-card {
+            background: white; padding: 2rem; border-radius: var(--radius-lg);
+            width: 90%; max-width: 400px; box-shadow: var(--shadow-lg);
+        }
+        .modal-card h3 { margin-top: 0; margin-bottom: 1rem; color: var(--text-main); }
+        .modal-card input { margin-bottom: 1rem; }
+        .modal-buttons { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
+    </style>
 </body>
 </html>
