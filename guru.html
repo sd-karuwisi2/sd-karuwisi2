@@ -22,6 +22,9 @@
             <div class="nav-user">
                 <span id="userName" style="font-weight: 500;">Guru</span>
                 <span id="userKelas" class="badge badge-warning" style="background: rgba(255,255,255,0.2); border: none; color: white;">Kelas</span>
+                <button onclick="showChangePasswordModal()" class="btn btn-outline" style="padding: 0.5rem 1rem; margin-right: 0.5rem; color: var(--text-main); border: 1px solid var(--border);">
+                    <i data-lucide="key" style="width: 16px; height: 16px;"></i> Password
+                </button>
                 <button onclick="logout()" class="btn btn-danger" style="padding: 0.5rem 1rem;">
                     <i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Keluar
                 </button>
@@ -53,13 +56,31 @@
                 <div class="scanner-container">
                     <div id="reader"></div>
                 </div>
+            <!-- Hasil Scan -->
+            <div id="resultCard" class="card" style="display: none; text-align: center; border-top: 4px solid var(--primary);">
+                <div id="resultIcon" style="margin-bottom: 1rem;"></div>
+                <h3 id="resultTitle" style="margin-bottom: 0.5rem; color: var(--text-main);">Berhasil!</h3>
+                <p id="resultMessage" style="color: var(--text-muted); line-height: 1.5;"></p>
             </div>
         </div>
+    </div>
 
-        <div id="resultCard" class="scan-result-card card" style="display: none; border-top: 4px solid var(--primary);">
-            <div id="resultIcon" style="margin-bottom: 1rem;"></div>
-            <h3 id="resultTitle"></h3>
-            <p id="resultMessage" style="margin-top: 0.5rem;"></p>
+    <!-- Modal Ganti Password -->
+    <div id="passwordModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>Ganti Password</h3>
+            <div class="form-group" style="text-align: left;">
+                <label>Password Baru</label>
+                <input type="password" id="newPassword" class="form-control" placeholder="Minimal 4 karakter">
+            </div>
+            <div class="form-group" style="text-align: left;">
+                <label>Konfirmasi Password Baru</label>
+                <input type="password" id="confirmPassword" class="form-control" placeholder="Ulangi password baru">
+            </div>
+            <div class="modal-buttons">
+                <button onclick="closePasswordModal()" class="btn btn-outline" style="border: 1px solid var(--border); padding: 0.5rem 1rem;">Batal</button>
+                <button onclick="saveNewPassword()" class="btn btn-primary" style="padding: 0.5rem 1rem;">Simpan</button>
+            </div>
         </div>
     </div>
 
@@ -236,6 +257,39 @@
                 isProcessing = false;
             }, 3000);
         }
+
+        // --- FITUR GANTI PASSWORD ---
+        function showChangePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        function saveNewPassword() {
+            const newPass = document.getElementById('newPassword').value.trim();
+            const confirmPass = document.getElementById('confirmPassword').value.trim();
+            
+            if (newPass.length < 4) {
+                alert("Password terlalu pendek (Minimal 4 karakter)");
+                return;
+            }
+            if (newPass !== confirmPass) {
+                alert("Konfirmasi password tidak cocok!");
+                return;
+            }
+            
+            // Simpan password ke LocalStorage
+            const customPasswords = JSON.parse(localStorage.getItem('custom_passwords') || '{}');
+            customPasswords[user.username] = newPass;
+            localStorage.setItem('custom_passwords', JSON.stringify(customPasswords));
+            
+            alert("Password berhasil diubah!");
+            closePasswordModal();
+        }
     </script>
     
     <style>
@@ -249,6 +303,19 @@
             padding: 8px; border-radius: 4px; font-family: 'Roboto', sans-serif; margin: 10px;
         }
         #reader a { color: var(--primary); display: none; }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .modal-card {
+            background: white; padding: 2rem; border-radius: var(--radius-lg);
+            width: 90%; max-width: 400px; box-shadow: var(--shadow-lg);
+        }
+        .modal-card h3 { margin-top: 0; margin-bottom: 1rem; color: var(--text-main); }
+        .modal-card input { margin-bottom: 1rem; }
+        .modal-buttons { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
     </style>
 </body>
 </html>
