@@ -90,20 +90,19 @@
             
             const scannerArea = document.getElementById('scannerArea');
             scannerArea.style.display = 'block';
-            document.getElementById('scannerTitle').textContent = `Mencari Lokasi...`;
+            document.getElementById('scannerTitle').textContent = `Mencari Lokasi... (Harap Tunggu)`;
             document.getElementById('resultCard').style.display = 'none';
 
-            // Dapatkan Lokasi GPS
+            // Dapatkan Lokasi GPS dengan senyap dan cepat
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
                         try {
-                            // Mengubah kordinat ke alamat menggunakan Nominatim (OpenStreetMap)
-                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`);
                             const data = await response.json();
-                            currentLocation = data.display_name || `${lat}, ${lon}`;
+                            currentLocation = data.display_name || `GPS: ${lat}, ${lon}`;
                         } catch (err) {
                             console.error("Gagal reverse geocoding:", err);
                             currentLocation = `GPS: ${lat}, ${lon}`;
@@ -114,12 +113,12 @@
                     },
                     (error) => {
                         console.warn("Geolocation error:", error);
-                        alert("Izin lokasi ditolak atau gagal. Absen akan tetap berjalan tanpa lokasi yang akurat.");
-                        currentLocation = "Lokasi tidak diizinkan/gagal";
+                        // Hapus alert agar tidak mengganggu, langsung fallback saja
+                        currentLocation = "Akses Lokasi Ditolak / GPS Tidak Aktif";
                         document.getElementById('scannerTitle').textContent = `Scanner (Absen ${status})`;
                         initScanner();
                     },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // Timeout dipercepat menjadi 5 detik
                 );
             } else {
                 currentLocation = "Browser tidak mendukung GPS";
@@ -191,9 +190,10 @@
                         // REAL MODE: Send to Google Sheets Apps Script
                         const response = await fetch(CONFIG.GOOGLE_SHEETS_API_URL, {
                             method: 'POST',
-                            mode: 'no-cors',
+                            mode: 'no-cors', // Penting untuk Apps Script dari statis Vercel
                             headers: {
-                                'Content-Type': 'application/json'
+                                // MENGGUNAKAN text/plain AGAR TIDAK DIBLOKIR PREFLIGHT CORS OLEH BROWSER
+                                'Content-Type': 'text/plain;charset=utf-8' 
                             },
                             body: JSON.stringify({
                                 date: today,
