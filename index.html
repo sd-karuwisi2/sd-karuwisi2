@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - UPT SPF SD INPRES KARUWISI 2</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./config.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-card card">
+            <div class="auth-logo">
+                <i data-lucide="school" style="width: 56px; height: 56px; color: var(--primary); margin-bottom: 0.5rem;"></i>
+                <h2>Sistem Absensi Guru</h2>
+                <p>UPT SPF SD INPRES KARUWISI 2</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group" style="text-align: left;">
+                    <label for="username">Username (Nama Depan)</label>
+                    <input type="text" id="username" class="form-control" placeholder="Contoh: suharni" required>
+                </div>
+                
+                <div class="form-group" style="text-align: left;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Masukkan password" required>
+                </div>
+                
+                <div id="errorMessage" class="alert alert-warning" style="display: none; padding: 0.75rem; font-size: 0.85rem;">
+                    <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
+                    <span id="errorText">Username atau password salah!</span>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.85rem;">
+                    <i data-lucide="log-in" style="width: 18px; height: 18px;"></i> Masuk Sistem
+                </button>
+            </form>
+            
+            <div style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-muted); text-align: left; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                <p style="margin-bottom: 0.5rem; font-weight: 600; color: var(--text-main);">Daftar Akun Login (Username = Nama Depan):</p>
+                <div style="max-height: 200px; overflow-y: auto; padding-right: 0.5rem; font-size: 0.8rem; background: var(--secondary); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+                    <ul style="padding-left: 1rem; margin-bottom: 0; line-height: 1.6; list-style-type: decimal;">
+                        <li><strong>admin</strong> - Administrator (Password: admin)</li>
+                        <li><strong>andi</strong> - Andi Nurhayati, S.Pd., M.Pd. (Kepsek)</li>
+                        <li><strong>suharni</strong> - Suharni, S.Pd. (Guru Kelas 1A)</li>
+                        <li><strong>herawati</strong> - Hj. Herawati Karim, S.Pd., M.Pd (Guru Kelas 1B)</li>
+                        <li><strong>muriati</strong> - Muriati, S.Pd., Gr (Guru Kelas 1C)</li>
+                        <li><strong>hastuti</strong> - Hastuti, S.Pd., Gr (Guru Kelas 2A)</li>
+                        <li><strong>kusmirawati</strong> - Andi Kusmirawati Samad, S.Pd., Gr (Guru Kelas 2B)</li>
+                        <li><strong>aisyah</strong> - Sitti Aisyah, S.Pd., Gr (Guru Kelas 3A)</li>
+                        <li><strong>supriani</strong> - Supriani, S.Pd., Gr (Guru Kelas 3B)</li>
+                        <li><strong>suharti</strong> - Hj. Suharti, S.Pd., Gr (Guru Kelas 3C)</li>
+                        <li><strong>anidah</strong> - Sry Anidah, S.Pd. (Guru Kelas 4A)</li>
+                        <li><strong>rahma</strong> - Sitti Rahma, S.Pd., M.Pd., Gr (Guru Kelas 4C)</li>
+                        <li><strong>asriani</strong> - Asriani, S.Pd., Gr (Guru Kelas 4B)</li>
+                        <li><strong>sukmayanti</strong> - Sukmayanti, S.Pd., Gr (Guru Kelas 5A)</li>
+                        <li><strong>mudatsir</strong> - Mudatsir, S.Pd., Gr (Guru Kelas 5B)</li>
+                        <li><strong>nurhayati</strong> - Nurhayati Ali, S.Pd., Gr (Guru Kelas 6A)</li>
+                        <li><strong>musriana</strong> - Musriana, S.Pd., Gr (Guru Kelas 6B)</li>
+                        <li><strong>nursipa</strong> - Nursipa, S.Ag (Guru PAI)</li>
+                        <li><strong>syarifah</strong> - Syarifah Nur Insyani, S.Pdi., Gr (Guru PAI)</li>
+                        <li><strong>munfaridah</strong> - Siti Munfaridah, S.Pdi., Gr (Guru PAI)</li>
+                        <li><strong>nur</strong> - Muh. Nur, S.Pd, Gr (Guru PJOK)</li>
+                        <li><strong>taufik</strong> - Taufik Hidayat, S.Pd., M.Pd., Gr (Guru Olahraga PJOK)</li>
+                        <li><strong>humaerah</strong> - Syarifah Humaerah, S.Pd. (Guru Bahasa Inggris)</li>
+                        <li><strong>nurkhaliza</strong> - St. Nurkhaliza Azizah Syam, S.Pd. (Admin)</li>
+                        <li><strong>zulhan</strong> - Muhammad Zulhan (Bujang)</li>
+                        <li><strong>makmur</strong> - Makmur (Security)</li>
+                    </ul>
+                </div>
+                <p style="margin-top: 0.75rem; font-weight: 500;"><em>*Password default semua staf: <strong>guru123</strong></em></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        // Data Guru UPT SPF SD INPRES KARUWISI 2
+        const dataGuru = {
+            "andi": { name: "Andi Nurhayati, S.Pd., M.Pd.", kelas: "Kepsek" },
+            "suharni": { name: "Suharni, S.Pd.", kelas: "1A" },
+            "herawati": { name: "Hj. Herawati Karim, S.Pd., M.Pd", kelas: "1B" },
+            "muriati": { name: "Muriati, S.Pd., Gr", kelas: "1C" },
+            "hastuti": { name: "Hastuti, S.Pd., Gr", kelas: "2A" },
+            "kusmirawati": { name: "Andi Kusmirawati Samad, S.Pd., Gr", kelas: "2B" },
+            "aisyah": { name: "Sitti Aisyah, S.Pd., Gr", kelas: "3A" },
+            "supriani": { name: "Supriani, S.Pd., Gr", kelas: "3B" },
+            "suharti": { name: "Hj. Suharti, S.Pd., Gr", kelas: "3C" },
+            "anidah": { name: "Sry Anidah, S.Pd.", kelas: "4A" },
+            "rahma": { name: "Sitti Rahma, S.Pd., M.Pd., Gr", kelas: "4C" },
+            "asriani": { name: "Asriani, S.Pd., Gr", kelas: "4B" },
+            "sukmayanti": { name: "Sukmayanti, S.Pd., Gr", kelas: "5A" },
+            "mudatsir": { name: "Mudatsir, S.Pd., Gr", kelas: "5B" },
+            "nurhayati": { name: "Nurhayati Ali, S.Pd., Gr", kelas: "6A" },
+            "musriana": { name: "Musriana, S.Pd., Gr", kelas: "6B" },
+            "nursipa": { name: "Nursipa, S.Ag", kelas: "Guru PAI" },
+            "syarifah": { name: "Syarifah Nur Insyani, S.Pdi., Gr", kelas: "Guru PAI" },
+            "munfaridah": { name: "Siti Munfaridah, S.Pdi., Gr", kelas: "Guru PAI" },
+            "nur": { name: "Muh. Nur, S.Pd, Gr", kelas: "Guru PJOK" },
+            "taufik": { name: "Taufik Hidayat, S.Pd., M.Pd., Gr", kelas: "Guru Olahraga PJOK" },
+            "humaerah": { name: "Syarifah Humaerah, S.Pd.", kelas: "Guru Bahasa Inggris" },
+            "nurkhaliza": { name: "St. Nurkhaliza Azizah Syam, S.Pd.", kelas: "Admin" },
+            "zulhan": { name: "Muhammad Zulhan", kelas: "Bujang" },
+            "makmur": { name: "Makmur", kelas: "Security" }
+        };
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const errorMsg = document.getElementById('errorMessage');
+            errorMsg.style.display = 'none';
+            
+            let username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value.trim();
+            
+            // Hapus awalan gelar yang sering salah diketik user
+            const prefixes = ["hj. ", "st. ", "a. ", "muh. ", "sitti ", "siti ", "sry "];
+            for (let prefix of prefixes) {
+                if (username.startsWith(prefix)) {
+                    username = username.replace(prefix, "");
+                }
+            }
+
+            
+            if (username === 'admin' && password === 'admin') {
+                localStorage.setItem('user', JSON.stringify({ role: 'admin', name: 'Administrator' }));
+                window.location.href = 'admin.html';
+            } else if (dataGuru[username] && password === 'guru123') {
+                const guru = dataGuru[username];
+                localStorage.setItem('user', JSON.stringify({ 
+                    role: 'guru', 
+                    name: guru.name,
+                    kelas: guru.kelas
+                }));
+                window.location.href = 'guru.html';
+            } else {
+                document.getElementById('errorText').textContent = "Username tidak ditemukan atau Password salah!";
+                errorMsg.style.display = 'flex';
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

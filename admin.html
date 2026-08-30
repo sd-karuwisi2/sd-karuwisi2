@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - UPT SPF SD INPRES KARUWISI 2</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Tambahkan library SheetJS untuk export Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script src="./config.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="school-header">
+            <h1>UPT SPF SD INPRES KARUWISI 2</h1>
+            <p>Dashboard Administrator Absensi Guru</p>
+        </div>
+
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i data-lucide="layout-dashboard"></i> Panel Admin
+            </div>
+            <div class="nav-user">
+                <span>Admin</span>
+                <button onclick="logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; color: var(--danger);">
+                    <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> Keluar
+                </button>
+            </div>
+        </nav>
+
+        <div class="dashboard-grid" style="margin-bottom: 2rem;">
+            <!-- Barcode Statis Card -->
+            <div class="card" style="padding: 2rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <h2 style="margin-bottom: 0.5rem;">Barcode Absensi Utama</h2>
+                <p style="margin-bottom: 1.5rem; font-size: 0.95rem;">Cetak dan tempelkan barcode ini di dinding sekolah. Guru cukup men-scan barcode ini setiap hari.</p>
+                
+                <div id="qrcode"></div>
+                
+                <button onclick="window.print()" class="btn btn-primary" style="margin-top: 1.5rem; width: 100%; max-width: 250px;">
+                    <i data-lucide="printer"></i> Cetak Barcode
+                </button>
+                <style>
+                    @media print {
+                        body * { visibility: hidden; }
+                        #qrcode, #qrcode * { visibility: visible; }
+                        #qrcode { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(2); border: none; box-shadow: none; }
+                    }
+                </style>
+            </div>
+
+            <!-- Log Table Card -->
+            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div class="stat-card card">
+                    <div class="stat-icon">
+                        <i data-lucide="users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <p>Total Data Absen Hari Ini</p>
+                        <h3 id="totalHadir">0</h3>
+                    </div>
+                </div>
+                
+                <div class="card" style="padding: 1.5rem; flex-grow: 1;">
+                    <div class="d-flex justify-between align-center" style="margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+                        <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="clipboard-list" style="color: var(--primary);"></i> Log Kehadiran Hari Ini
+                        </h2>
+                        <div class="d-flex align-center gap-4">
+                            <span id="currentDate" style="font-weight: 600; color: var(--text-muted); font-size: 0.95rem;"></span>
+                            
+                            <button onclick="downloadExcel()" class="btn btn-success" style="padding: 0.5rem 1rem;" title="Download Data ke Excel">
+                                <i data-lucide="file-spreadsheet" style="width: 18px; height: 18px;"></i> Excel
+                            </button>
+                            
+                            <button onclick="loadAttendance()" class="btn btn-outline" style="padding: 0.5rem 1rem;" id="btnRefresh">
+                                <i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table id="attendanceTable">
+                            <thead>
+                                <tr>
+                                    <th>Waktu</th>
+                                    <th>Nama Guru</th>
+                                    <th>Kelas</th>
+                                    <th>Status</th>
+                                    <th>Lokasi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 2rem;">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Check auth
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'admin') {
+            window.location.href = 'index.html';
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        // Set Current Date
+        const today = new Date();
+        const dateString = today.toISOString().split('T')[0];
+        document.getElementById('currentDate').textContent = today.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        
+        // STATIC Payload for the scanner
+        const barcodePayload = JSON.stringify({
+            type: "ABSENQ_ATTENDANCE",
+            school: "UPT_SPF_SD_INPRES_KARUWISI_2",
+            token: "STATIC_SECURE_TOKEN_2026"
+        });
+
+        // Generate QR Code
+        new QRCode(document.getElementById("qrcode"), {
+            text: barcodePayload,
+            width: 200,
+            height: 200,
+            colorDark : "#0f172a",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+
+        // Simpan data mentah untuk keperluan Export Excel
+        let currentRecordsData = [];
+
+        // Load Attendance from Google Sheets or LocalStorage (Demo Mode)
+        async function loadAttendance() {
+            const tbody = document.querySelector('#attendanceTable tbody');
+            const totalHadir = document.getElementById('totalHadir');
+            const btn = document.getElementById('btnRefresh');
+            
+            btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width: 18px; height: 18px;"></i> Refresh';
+            lucide.createIcons();
+            
+            let records = [];
+
+            if (CONFIG.GOOGLE_SHEETS_API_URL === "URL_WEB_APP_ANDA_DISINI") {
+                // FALLBACK DEMO MODE
+                const allRecords = JSON.parse(localStorage.getItem('demo_attendance') || '[]');
+                records = allRecords.filter(r => r.date === dateString);
+                
+                if (!document.getElementById('demoWarning')) {
+                    const warningDiv = document.createElement('div');
+                    warningDiv.id = 'demoWarning';
+                    warningDiv.className = 'alert alert-warning';
+                    warningDiv.innerHTML = '<i data-lucide="alert-triangle" style="width: 24px; height: 24px;"></i><div><strong>Mode Penyimpanan Lokal:</strong> URL Google Sheets belum diatur di config.js. Data saat ini hanya tersimpan di memori browser Anda, bukan di internet.</div>';
+                    document.querySelector('.dashboard-grid').parentNode.insertBefore(warningDiv, document.querySelector('.dashboard-grid'));
+                    lucide.createIcons();
+                }
+            } else {
+                // REAL MODE (Google Sheets)
+                try {
+                    const response = await fetch(`${CONFIG.GOOGLE_SHEETS_API_URL}?date=${dateString}`);
+                    records = await response.json();
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--danger); padding: 2rem;">Gagal memuat data dari Google Sheets. Pastikan URL benar.</td></tr>';
+                    btn.innerHTML = '<i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i> Refresh';
+                    lucide.createIcons();
+                    return;
+                }
+            }
+            
+            currentRecordsData = records; // Simpan ke memori global
+            totalHadir.textContent = records.length;
+            tbody.innerHTML = '';
+            
+            if (records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Belum ada log absen hari ini.</td></tr>';
+            } else {
+                records.forEach(record => {
+                    const tr = document.createElement('tr');
+                    let statusBadge = '';
+                    if (record.status === 'Datang') {
+                        statusBadge = '<span class="badge badge-success"><i data-lucide="log-in" style="width: 12px; height: 12px;"></i> Datang</span>';
+                    } else if (record.status === 'Pulang') {
+                        statusBadge = '<span class="badge badge-warning"><i data-lucide="log-out" style="width: 12px; height: 12px;"></i> Pulang</span>';
+                    } else {
+                        statusBadge = `<span class="badge badge-primary">${record.status}</span>`;
+                    }
+                    
+                    let lokasiText = record.lokasi || "Tidak ada data";
+                    let lokasiHtml = `<td style="font-size: 0.85rem; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${lokasiText}">${lokasiText}</td>`;
+                    
+                    // Jika berisi kata GPS, buat jadi link peta
+                    if (lokasiText.startsWith("GPS: ")) {
+                        const coords = lokasiText.replace("GPS: ", "");
+                        lokasiHtml = `<td style="font-size: 0.85rem;"><a href="https://maps.google.com/?q=${coords}" target="_blank" style="color: var(--primary); text-decoration: none;"><i data-lucide="map-pin" style="width: 14px; height: 14px; vertical-align: middle;"></i> Buka Peta</a></td>`;
+                    } else if (lokasiText !== "Tidak ada data" && !lokasiText.includes("tidak diketahui")) {
+                        lokasiHtml = `<td style="font-size: 0.85rem; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${lokasiText}"><i data-lucide="map-pin" style="width: 12px; height: 12px; color: var(--primary); vertical-align: middle;"></i> ${lokasiText}</td>`;
+                    }
+
+                    tr.innerHTML = `
+                        <td style="font-weight: 500;">${record.time}</td>
+                        <td style="font-weight: 700; color: var(--text-main);">${record.name}</td>
+                        <td>${record.kelas}</td>
+                        <td>${statusBadge}</td>
+                        ${lokasiHtml}
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+            
+            btn.innerHTML = '<i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i> Refresh';
+            lucide.createIcons();
+        }
+
+        // Fungsi Download Excel menggunakan SheetJS
+        function downloadExcel() {
+            if (currentRecordsData.length === 0) {
+                alert("Tidak ada data absen hari ini untuk di-download.");
+                return;
+            }
+
+            // Siapkan data untuk Excel
+            const excelData = currentRecordsData.map((row, index) => ({
+                "No": index + 1,
+                "Tanggal": row.date,
+                "Waktu": row.time,
+                "Nama Guru": row.name,
+                "Kelas": row.kelas,
+                "Status": row.status,
+                "Lokasi (Alamat / GPS)": row.lokasi || "-"
+            }));
+
+            // Buat worksheet dan workbook
+            const worksheet = XLSX.utils.json_to_sheet(excelData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Absensi Hari Ini");
+
+            // Lebarkan kolom biar rapi
+            const wscols = [
+                {wch: 5},  // No
+                {wch: 15}, // Tanggal
+                {wch: 15}, // Waktu
+                {wch: 30}, // Nama Guru
+                {wch: 10}, // Kelas
+                {wch: 15}, // Status
+                {wch: 50}  // Lokasi
+            ];
+            worksheet['!cols'] = wscols;
+
+            // Buat file dan trigger download
+            XLSX.writeFile(workbook, `Laporan_Absensi_${dateString}.xlsx`);
+        }
+
+        loadAttendance();
+    </script>
+</body>
+</html>
