@@ -34,12 +34,20 @@
         <!-- Pilihan Absen Datang/Pulang -->
         <div id="selectionMode" style="text-align: center; margin-bottom: 2rem;">
             <h2 style="margin-bottom: 1.5rem;">Pilih Jenis Absen</h2>
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <button onclick="startScanner('Datang')" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">
-                    <i data-lucide="log-in"></i> Absen Datang
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem;">
+                <button onclick="startScanner('Datang')" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem; width: 45%;">
+                    <i data-lucide="log-in"></i> Datang
                 </button>
-                <button onclick="startScanner('Pulang')" class="btn btn-warning" style="padding: 1rem 2rem; font-size: 1.1rem; color: #fff;">
-                    <i data-lucide="log-out"></i> Absen Pulang
+                <button onclick="startScanner('Pulang')" class="btn btn-warning" style="padding: 1rem 2rem; font-size: 1.1rem; color: #fff; width: 45%;">
+                    <i data-lucide="log-out"></i> Pulang
+                </button>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button onclick="showAbsenAlternatifModal('Sakit')" class="btn btn-danger" style="padding: 1rem 2rem; font-size: 1.1rem; width: 45%; background: var(--danger); color: white;">
+                    <i data-lucide="thermometer"></i> Sakit
+                </button>
+                <button onclick="showAbsenAlternatifModal('Izin')" class="btn btn-outline" style="padding: 1rem 2rem; font-size: 1.1rem; width: 45%; border: 1px solid var(--border); color: var(--text-main); background: var(--surface);">
+                    <i data-lucide="file-text"></i> Izin
                 </button>
             </div>
         </div>
@@ -84,7 +92,105 @@
         </div>
     </div>
 
+    <!-- Modal Absen Alternatif (Izin/Sakit) -->
+    <div id="absenAlternatifModal" class="modal-overlay">
+        <div class="modal-card">
+            <h3 id="absenAlternatifTitle">Form Izin / Sakit</h3>
+            <div class="form-group" style="text-align: left;">
+                <label>Alasan / Keterangan Tambahan</label>
+                <textarea id="absenAlternatifReason" class="form-control" rows="3" placeholder="Masukkan alasan (misal: Demam, Rapat di Dinas, dll)"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button onclick="closeAbsenAlternatifModal()" class="btn btn-outline" style="border: 1px solid var(--border); padding: 0.5rem 1rem;">Batal</button>
+                <button onclick="submitAbsenAlternatif()" class="btn btn-primary" style="padding: 0.5rem 1rem;">Kirim Absen</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // --- FITUR IZIN & SAKIT ---
+        let statusAlternatif = "";
+        
+        function showAbsenAlternatifModal(status) {
+            statusAlternatif = status;
+            document.getElementById('absenAlternatifTitle').textContent = `Form Pengajuan ${status}`;
+            document.getElementById('absenAlternatifReason').value = '';
+            document.getElementById('absenAlternatifModal').style.display = 'flex';
+        }
+
+        function closeAbsenAlternatifModal() {
+            document.getElementById('absenAlternatifModal').style.display = 'none';
+        }
+
+        async function submitAbsenAlternatif() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const reason = document.getElementById('absenAlternatifReason').value.trim();
+            const lokasiText = reason ? `Alasan: ${reason}` : `Alasan: Tidak ada keterangan`;
+            
+            closeAbsenAlternatifModal();
+            document.getElementById('selectionMode').style.display = 'none';
+            
+            const resultCard = document.getElementById('resultCard');
+            const resultIcon = document.getElementById('resultIcon');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultMessage = document.getElementById('resultMessage');
+            
+            resultCard.style.display = 'block';
+            resultIcon.innerHTML = `<i data-lucide="loader" class="spin" style="width: 48px; height: 48px; color: var(--primary);"></i>`;
+            resultTitle.textContent = "Memproses...";
+            resultMessage.textContent = `Mengirim data ${statusAlternatif} ke server...`;
+            lucide.createIcons();
+
+            try {
+                const today = new Date();
+                const dateString = today.toLocaleDateString('en-CA');
+                const timeString = today.toLocaleTimeString('id-ID', { hour12: false });
+                
+                const payload = {
+                    date: dateString,
+                    time: timeString,
+                    name: user.name,
+                    kelas: user.kelas || "-",
+                    status: statusAlternatif,
+                    lokasi: lokasiText
+                };
+
+                if (CONFIG.GOOGLE_SHEETS_API_URL === "URL_WEB_APP_ANDA_DISINI") {
+                    const allRecords = JSON.parse(localStorage.getItem('demo_attendance') || '[]');
+                    allRecords.push(payload);
+                    localStorage.setItem('demo_attendance', JSON.stringify(allRecords));
+                } else {
+                    await fetch(CONFIG.GOOGLE_SHEETS_API_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+
+                playSuccessBeep();
+                resultIcon.innerHTML = `<i data-lucide="check-circle" style="width: 48px; height: 48px; color: var(--success);"></i>`;
+                resultTitle.textContent = "Berhasil!";
+                resultMessage.innerHTML = `Terima kasih <strong>${user.name}</strong>.<br>Absen <strong>${statusAlternatif}</strong> Anda tercatat pukul ${timeString}.`;
+                resultCard.style.borderTopColor = 'var(--success)';
+                
+            } catch (error) {
+                resultIcon.innerHTML = `<i data-lucide="x-circle" style="width: 48px; height: 48px; color: var(--danger);"></i>`;
+                resultTitle.textContent = "Gagal!";
+                resultMessage.textContent = "Koneksi terputus. Pastikan internet Anda lancar dan coba lagi.";
+                resultCard.style.borderTopColor = 'var(--danger)';
+            }
+            lucide.createIcons();
+
+            setTimeout(() => {
+                resultCard.style.display = 'none';
+                document.getElementById('selectionMode').style.display = 'block';
+                isProcessing = false;
+            }, 6000);
+        }
+
         lucide.createIcons();
 
         // Check auth
@@ -153,7 +259,7 @@
                 html5QrcodeScanner = new Html5QrcodeScanner(
                     "reader",
                     { 
-                        fps: 10, 
+                        fps: 30, // Ditingkatkan ke 30 FPS agar real-time dan super cepat
                         qrbox: {width: 250, height: 250}, 
                         aspectRatio: 1.0,
                         videoConstraints: { facingMode: "environment" } // Paksa kamera belakang
