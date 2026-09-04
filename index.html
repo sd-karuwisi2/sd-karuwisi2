@@ -5,81 +5,203 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - UPT SPF SD INPRES KARUWISI 2</title>
-    <link rel="stylesheet" href="./style.css">
+
+    <!-- Ultra-fast DNS Resolution & TLS Handshake (Vercel Optimization) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://script.google.com">
+    <link rel="preconnect" href="https://unpkg.com">
+
+    <link rel="stylesheet" href="./style.css?v=3.1">
     <script src="./config.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
-    <div class="auth-wrapper">
-        <div class="auth-card card">
-            <div class="auth-logo">
-                <i data-lucide="school"
-                    style="width: 56px; height: 56px; color: var(--primary); margin-bottom: 0.5rem;"></i>
-                <h2>Sistem Absensi Guru</h2>
-                <p>UPT SPF SD INPRES KARUWISI 2</p>
+    <div class="auth-wrapper flex items-center justify-center p-4"
+        style="background-image: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); min-height: 100vh;">
+        <div class="card p-8 md:p-6 w-full max-w-lg mx-auto"
+            style="border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); background: var(--surface);">
+            <div class="text-center mb-8">
+                <div class="mx-auto flex items-center justify-center mb-4"
+                    style="width: 72px; height: 72px; background: #e0e7ff; border-radius: 20px; color: var(--primary);">
+                    <i data-lucide="school" style="width: 36px; height: 36px;"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold m-0" style="letter-spacing: -0.03em;">Sistem Absensi Guru</h2>
+                <p class="text-base text-muted font-medium mt-1">UPT SPF SD INPRES KARUWISI 2</p>
             </div>
 
             <form id="loginForm">
-                <div class="form-group" style="text-align: left;">
-                    <label for="username">Username (Nama Depan)</label>
-                    <input type="text" id="username" class="form-control" placeholder="Contoh: suharni" required>
+                <div class="form-group">
+                    <label for="username" class="form-label">Username (Nama Depan)</label>
+                    <input type="text" id="username" class="form-control" placeholder="Contoh: suharni"
+                        style="text-transform: lowercase;" required>
+                    <p class="text-xs text-danger mt-1 font-medium"
+                        style="display: flex; align-items: center; gap: 4px;">
+                        <i data-lucide="info" style="width: 14px; height: 14px;"></i> Wajib menggunakan <strong>huruf
+                            kecil semua</strong> tanpa spasi.
+                    </p>
                 </div>
 
-                <div class="form-group" style="text-align: left;">
-                    <label for="password">Password</label>
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
                     <input type="password" id="password" class="form-control" placeholder="Masukkan password" required>
                 </div>
 
-                <div id="errorMessage" class="alert alert-warning"
-                    style="display: none; padding: 0.75rem; font-size: 0.85rem;">
-                    <i data-lucide="alert-circle" style="width: 16px; height: 16px;"></i>
+                <div id="errorMessage" class="alert alert-warning" style="display: none;">
+                    <i data-lucide="alert-circle"></i>
                     <span id="errorText">Username atau password salah!</span>
                 </div>
 
-                <button type="submit" class="btn btn-primary"
-                    style="width: 100%; margin-top: 0.5rem; padding: 0.85rem;">
-                    <i data-lucide="log-in" style="width: 18px; height: 18px;"></i> Masuk Sistem
+                <button type="submit" class="btn btn-primary btn-block btn-lg mt-6">
+                    <i data-lucide="log-in"></i> Masuk Sistem
                 </button>
             </form>
 
-            <div
-                style="margin-top: 2rem; font-size: 0.85rem; color: var(--text-muted); text-align: left; padding-top: 1.5rem; border-top: 1px solid var(--border);">
-                <p style="margin-bottom: 0.5rem; font-weight: 600; color: var(--text-main);">Daftar Akun Login (Username
-                    = Nama Depan):</p>
-                <div
-                    style="max-height: 200px; overflow-y: auto; padding-right: 0.5rem; font-size: 0.8rem; background: var(--secondary); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border);">
-                    <ul style="padding-left: 1rem; margin-bottom: 0; line-height: 1.6; list-style-type: decimal;">
-                        <li><strong>admin</strong> - Administrator (Password: admin)</li>
-                        <li><strong>andi</strong> - Andi Nurhayati, S.Pd., M.Pd. (Kepsek)</li>
-                        <li><strong>suharni</strong> - Suharni, S.Pd. (Guru Kelas 1A)</li>
-                        <li><strong>herawati</strong> - Hj. Herawati Karim, S.Pd., M.Pd (Guru Kelas 1B)</li>
-                        <li><strong>muriati</strong> - Muriati, S.Pd., Gr (Guru Kelas 1C)</li>
-                        <li><strong>hastuti</strong> - Hastuti, S.Pd., Gr (Guru Kelas 2A)</li>
-                        <li><strong>kusmirawati</strong> - Andi Kusmirawati Samad, S.Pd., Gr (Guru Kelas 2B)</li>
-                        <li><strong>aisyah</strong> - Sitti Aisyah, S.Pd., Gr (Guru Kelas 3A)</li>
-                        <li><strong>supriani</strong> - Supriani, S.Pd., Gr (Guru Kelas 3B)</li>
-                        <li><strong>suharti</strong> - Hj. Suharti, S.Pd., Gr (Guru Kelas 3C)</li>
-                        <li><strong>anidah</strong> - Sry Anidah, S.Pd. (Guru Kelas 4A)</li>
-                        <li><strong>rahma</strong> - Sitti Rahma, S.Pd., M.Pd., Gr (Guru Kelas 4C)</li>
-                        <li><strong>asriani</strong> - Asriani, S.Pd., Gr (Guru Kelas 4B)</li>
-                        <li><strong>sukmayanti</strong> - Sukmayanti, S.Pd., Gr (Guru Kelas 5A)</li>
-                        <li><strong>mudatsir</strong> - Mudatsir, S.Pd., Gr (Guru Kelas 5B)</li>
-                        <li><strong>nurhayati</strong> - Nurhayati Ali, S.Pd., Gr (Guru Kelas 6A)</li>
-                        <li><strong>musriana</strong> - Musriana, S.Pd., Gr (Guru Kelas 6B)</li>
-                        <li><strong>nursida</strong> - Nursida, S.Ag (Guru PAI)</li>
-                        <li><strong>syarifah</strong> - Syarifah Nur Insyani, S.Pdi., Gr (Guru PAI)</li>
-                        <li><strong>munfaridah</strong> - Siti Munfaridah, S.Pdi., Gr (Guru PAI)</li>
-                        <li><strong>nur</strong> - Muh. Nur, S.Pd, Gr (Guru PJOK)</li>
-                        <li><strong>taufik</strong> - Taufik Hidayat, S.Pd., M.Pd., Gr (Guru Olahraga PJOK)</li>
-                        <li><strong>humaerah</strong> - Syarifah Humaerah, S.Pd. (Guru Bahasa Inggris)</li>
-                        <li><strong>nurkhaliza</strong> - St. Nurkhaliza Azizah Syam, S.Pd. (Admin)</li>
-                        <li><strong>zulhan</strong> - Muhammad Zulhan (Bujang)</li>
-                        <li><strong>makmur</strong> - Makmur (Security)</li>
-                    </ul>
-                </div>
-                <p style="margin-top: 0.75rem; font-weight: 500;"><em>*Password default semua staf:
-                        <strong>guru123</strong></em></p>
+            <div class="mt-8 text-center">
+                <button type="button" onclick="document.getElementById('demoAccountsModal').style.display = 'flex';"
+                    class="btn btn-ghost text-sm font-medium">
+                    <i data-lucide="help-circle" style="width: 16px; height: 16px;"></i> Lihat Daftar Akun
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Daftar Akun Demo -->
+    <div id="demoAccountsModal" class="modal-overlay" onclick="if(event.target === this) this.style.display='none';">
+        <div class="modal-card"
+            style="max-width: 32rem; padding: 0; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+            <div class="flex justify-between items-center p-4 border-b"
+                style="border-bottom: 1px solid var(--border-light);">
+                <h3 class="font-bold text-lg m-0 flex items-center gap-2"><i data-lucide="users"></i> Daftar Akun
+                    (Password Bisa Diganti)
+                </h3>
+                <button onclick="document.getElementById('demoAccountsModal').style.display='none'"
+                    class="btn btn-ghost p-2" style="border-radius: 50%; min-width: auto;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div class="p-4" style="background: #f8fafc; border-bottom: 1px solid var(--border-light);">
+                <p class="text-sm font-medium text-main m-0">Password Default Guru: <strong
+                        class="text-primary">guru123</strong></p>
+                <p class="text-sm font-medium text-main m-0 mt-1">Password Admin: <strong
+                        class="text-primary">admin</strong></p>
+            </div>
+
+            <div class="scrollable-list p-0" style="flex: 1; max-height: 400px; overflow-y: auto;">
+                <table style="font-size: 0.85rem; width: 100%; text-align: left; border-collapse: collapse;">
+                    <tbody id="accountListBody">
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>admin</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Administrator</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>andi</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Andi Nurhayati, S.Pd., M.Pd. (Kepsek)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>suharni</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Suharni, S.Pd. (Guru Kelas 1A)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>herawati</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Hj. Herawati Karim, S.Pd., M.Pd (Guru 1B)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>muriati</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Muriati, S.Pd. (Guru 1C)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>hastuti</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Hastuti, S.Pd. (Guru 2A)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>kusmirawati</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Andi Kusmirawati Samad, S.Pd. (Guru 2B)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>aisyah</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Sitti Aisyah, S.Pd. (Guru 3A)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>supriani</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Supriani, S.Pd. (Guru 3B)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>suharti</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Hj. Suharti, S.Pd. (Guru 3C)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>anidah</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Sry Anidah, S.Pd. (Guru 4A)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>rahma</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Sitti Rahma, S.Pd., M.Pd. (Guru 4C)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>asriani</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Asriani, S.Pd. (Guru 4B)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>sukmayanti</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Sukmayanti, S.Pd. (Guru 5A)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>mudatsir</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Mudatsir, S.Pd. (Guru 5B)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>nurhayati</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Nurhayati Ali, S.Pd. (Guru 6A)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>musriana</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Musriana, S.Pd. (Guru 6B)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>nursida</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Nursida, S.Ag (Guru PAI)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>syarifah</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Syarifah Nur Insyani, S.Pdi. (Guru PAI)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>munfaridah</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Siti Munfaridah, S.Pdi. (Guru PAI)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>nur</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Muh. Nur, S.Pd. (Guru PJOK)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>taufik</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Taufik Hidayat, S.Pd., M.Pd. (Olahraga)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>humaerah</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Syarifah Humaerah, S.Pd. (Bhs. Inggris)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>nurkhaliza</strong></td>
+                            <td style="padding: 0.75rem 1rem;">St. Nurkhaliza Azizah Syam, S.Pd. (Admin)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-light);">
+                            <td style="padding: 0.75rem 1rem;"><strong>zulhan</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Muhammad Zulhan (Bujang)</td>
+                        </tr>
+                        <tr style="border-bottom: none;">
+                            <td style="padding: 0.75rem 1rem;"><strong>makmur</strong></td>
+                            <td style="padding: 0.75rem 1rem;">Makmur (Security)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-4 border-t text-center" style="border-top: 1px solid var(--border-light);">
+                <button type="button" onclick="document.getElementById('demoAccountsModal').style.display='none'"
+                    class="btn btn-outline btn-block">Tutup</button>
             </div>
         </div>
     </div>
