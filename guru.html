@@ -1,93 +1,132 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scanner Guru - UPT SPF SD INPRES KARUWISI 2</title>
-    <link rel="stylesheet" href="./style.css">
+
+    <!-- Ultra-fast DNS Resolution & TLS Handshake (Vercel Optimization) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://script.google.com">
+    <link rel="preconnect" href="https://unpkg.com">
+
+    <link rel="stylesheet" href="./style.css?v=3.1">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="./config.js"></script>
 </head>
+
 <body>
-    <div class="container" style="max-width: 800px;">
-        <div class="school-header" style="margin-bottom: 1rem; padding-bottom: 0.5rem;">
-            <h2 style="margin: 0; color: var(--primary);">UPT SPF SD INPRES KARUWISI 2</h2>
+    <div class="container max-w-xl">
+        <!-- Dashboard Header -->
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-extrabold text-main m-0" style="letter-spacing: -0.02em;">UPT SPF SD INPRES
+                KARUWISI 2</h1>
+            <p class="text-sm text-muted font-medium mt-1">Sistem Absensi Guru</p>
         </div>
 
-        <nav class="navbar" style="border-radius: 8px; margin-bottom: 2rem;">
-            <div class="nav-brand">
-                <i data-lucide="scan"></i> Scanner Guru
+        <nav class="card p-4 mb-8 flex justify-between items-center md:flex-col md:gap-4">
+            <div class="flex items-center gap-3">
+                <div class="shrink-0"
+                    style="width: 40px; height: 40px; border-radius: 12px; background: #e0e7ff; color: var(--primary); display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="scan" style="width: 24px; height: 24px;"></i>
+                </div>
+                <div class="flex flex-col items-start">
+                    <h2 class="text-lg m-0 font-bold">Scanner Guru</h2>
+                    <div class="flex items-center gap-2 mt-1">
+                        <span id="userName" class="text-sm font-semibold text-main">Guru</span>
+                        <span id="userKelas" class="badge badge-primary">Kelas</span>
+                    </div>
+                </div>
             </div>
-            <div class="nav-user">
-                <span id="userName" style="font-weight: 500;">Guru</span>
-                <span id="userKelas" class="badge badge-warning" style="background: rgba(255,255,255,0.2); border: none; color: white;">Kelas</span>
-                <button onclick="showChangePasswordModal()" class="btn btn-outline" style="padding: 0.5rem 1rem; margin-right: 0.5rem; color: var(--text-main); border: 1px solid var(--border);">
-                    <i data-lucide="key" style="width: 16px; height: 16px;"></i> Password
+
+            <div class="flex items-center gap-2 md:w-full md:grid md:grid-cols-2">
+                <button onclick="showChangePasswordModal()" class="btn btn-outline md:w-full">
+                    <i data-lucide="key"></i> Password
                 </button>
-                <button onclick="logout()" class="btn btn-danger" style="padding: 0.5rem 1rem;">
-                    <i data-lucide="log-out" style="width: 16px; height: 16px;"></i> Keluar
+                <button onclick="logout()" class="btn btn-danger btn-ghost md:w-full">
+                    <i data-lucide="log-out"></i> Keluar
                 </button>
             </div>
         </nav>
 
         <!-- Pilihan Absen Datang/Pulang -->
-        <div id="selectionMode" style="text-align: center; margin-bottom: 2rem;">
-            <h2 style="margin-bottom: 1.5rem;">Pilih Jenis Absen</h2>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem;">
-                <button onclick="startScanner('Datang')" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem; width: 45%;">
-                    <i data-lucide="log-in"></i> Datang
+        <div id="selectionMode" class="card p-8 text-center mb-8">
+            <h2 class="text-xl font-bold mb-6">Pilih Jenis Absen</h2>
+
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="startScanner('Datang')" class="btn btn-primary flex-col gap-2 p-6 h-full"
+                    style="border-radius: var(--radius-md);">
+                    <i data-lucide="log-in" style="width: 32px; height: 32px; margin-bottom: 0.25rem;"></i>
+                    <span class="text-base">Datang</span>
                 </button>
-                <button onclick="startScanner('Pulang')" class="btn btn-warning" style="padding: 1rem 2rem; font-size: 1.1rem; color: #fff; width: 45%;">
-                    <i data-lucide="log-out"></i> Pulang
+                <button onclick="startScanner('Pulang')" class="btn btn-warning flex-col gap-2 p-6 h-full"
+                    style="border-radius: var(--radius-md);">
+                    <i data-lucide="log-out" style="width: 32px; height: 32px; margin-bottom: 0.25rem;"></i>
+                    <span class="text-base">Pulang</span>
                 </button>
-            </div>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <button onclick="showAbsenAlternatifModal('Sakit')" class="btn btn-danger" style="padding: 1rem 2rem; font-size: 1.1rem; width: 45%; background: var(--danger); color: white;">
-                    <i data-lucide="thermometer"></i> Sakit
+                <button onclick="showAbsenAlternatifModal('Sakit')" class="btn btn-danger flex-col gap-2 p-6 h-full"
+                    style="border-radius: var(--radius-md);">
+                    <i data-lucide="thermometer" style="width: 32px; height: 32px; margin-bottom: 0.25rem;"></i>
+                    <span class="text-base">Sakit</span>
                 </button>
-                <button onclick="showAbsenAlternatifModal('Izin')" class="btn btn-outline" style="padding: 1rem 2rem; font-size: 1.1rem; width: 45%; border: 1px solid var(--border); color: var(--text-main); background: var(--surface);">
-                    <i data-lucide="file-text"></i> Izin
+                <button onclick="showAbsenAlternatifModal('Izin')" class="btn btn-outline flex-col gap-2 p-6 h-full"
+                    style="border-radius: var(--radius-md);">
+                    <i data-lucide="file-text" style="width: 32px; height: 32px; margin-bottom: 0.25rem;"></i>
+                    <span class="text-base">Izin</span>
                 </button>
             </div>
         </div>
 
         <!-- Area Scanner (Hidden awalnya) -->
-        <div id="scannerArea" style="display: none;">
-            <div style="text-align: center; margin-bottom: 1rem;">
-                <h2 id="scannerTitle">Kamera Aktif</h2>
-                <p>Arahkan kamera ke Barcode utama sekolah.</p>
-                <button onclick="cancelScanner()" class="btn" style="margin-top: 1rem; background: var(--border);">Batal</button>
-            </div>
+        <div id="scannerArea" style="display: none;" class="mb-8">
+            <div class="card p-6 md:p-4 text-center">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 id="scannerTitle" class="text-xl font-bold m-0 text-primary">Kamera Aktif</h2>
+                    <button onclick="cancelScanner()" class="btn btn-outline p-2" style="border-radius: 50%;">
+                        <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+                    </button>
+                </div>
+                <p class="text-sm text-muted mb-6">Arahkan kamera ke Barcode utama sekolah untuk merekam absensi.</p>
 
-            <div class="card" style="padding: 1.5rem;">
-                <div class="scanner-container">
+                <div class="scanner-container mx-auto">
                     <div id="reader"></div>
                 </div>
-            <!-- Hasil Scan -->
-            <div id="resultCard" class="card" style="display: none; text-align: center; border-top: 4px solid var(--primary);">
-                <div id="resultIcon" style="margin-bottom: 1rem;"></div>
-                <h3 id="resultTitle" style="margin-bottom: 0.5rem; color: var(--text-main);">Berhasil!</h3>
-                <p id="resultMessage" style="color: var(--text-muted); line-height: 1.5;"></p>
             </div>
+        </div>
+
+        <!-- Hasil Scan -->
+        <div id="resultCard" class="card p-8 text-center" style="display: none; border-top: 4px solid var(--primary);">
+            <div id="resultIcon" class="mb-4"></div>
+            <h3 id="resultTitle" class="text-2xl font-bold mb-2 text-main">Berhasil!</h3>
+            <p id="resultMessage" class="text-base text-muted"></p>
         </div>
     </div>
 
     <!-- Modal Ganti Password -->
     <div id="passwordModal" class="modal-overlay">
         <div class="modal-card">
-            <h3>Ganti Password</h3>
-            <div class="form-group" style="text-align: left;">
-                <label>Password Baru</label>
+            <div class="flex items-center gap-3 mb-6">
+                <div
+                    style="width: 40px; height: 40px; border-radius: 12px; background: #e0e7ff; color: var(--primary); display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="lock" style="width: 20px; height: 20px;"></i>
+                </div>
+                <h3 class="text-xl font-bold m-0">Ganti Password</h3>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Password Baru</label>
                 <input type="password" id="newPassword" class="form-control" placeholder="Minimal 4 karakter">
             </div>
-            <div class="form-group" style="text-align: left;">
-                <label>Konfirmasi Password Baru</label>
+            <div class="form-group">
+                <label class="form-label">Konfirmasi Password</label>
                 <input type="password" id="confirmPassword" class="form-control" placeholder="Ulangi password baru">
             </div>
-            <div class="modal-buttons">
-                <button onclick="closePasswordModal()" class="btn btn-outline" style="border: 1px solid var(--border); padding: 0.5rem 1rem;">Batal</button>
-                <button onclick="saveNewPassword()" class="btn btn-primary" style="padding: 0.5rem 1rem;">Simpan</button>
+            <div class="flex gap-3 mt-8">
+                <button onclick="closePasswordModal()" class="btn btn-outline flex-1">Batal</button>
+                <button onclick="saveNewPassword()" class="btn btn-primary flex-1">Simpan</button>
             </div>
         </div>
     </div>
@@ -98,11 +137,14 @@
             <h3 id="absenAlternatifTitle">Form Izin / Sakit</h3>
             <div class="form-group" style="text-align: left;">
                 <label>Alasan / Keterangan Tambahan</label>
-                <textarea id="absenAlternatifReason" class="form-control" rows="3" placeholder="Masukkan alasan (misal: Demam, Rapat di Dinas, dll)"></textarea>
+                <textarea id="absenAlternatifReason" class="form-control" rows="3"
+                    placeholder="Masukkan alasan (misal: Demam, Rapat di Dinas, dll)"></textarea>
             </div>
             <div class="modal-buttons">
-                <button onclick="closeAbsenAlternatifModal()" class="btn btn-outline" style="border: 1px solid var(--border); padding: 0.5rem 1rem;">Batal</button>
-                <button onclick="submitAbsenAlternatif()" class="btn btn-primary" style="padding: 0.5rem 1rem;">Kirim Absen</button>
+                <button onclick="closeAbsenAlternatifModal()" class="btn btn-outline"
+                    style="border: 1px solid var(--border); padding: 0.5rem 1rem;">Batal</button>
+                <button onclick="submitAbsenAlternatif()" class="btn btn-primary" style="padding: 0.5rem 1rem;">Kirim
+                    Absen</button>
             </div>
         </div>
     </div>
@@ -110,7 +152,7 @@
     <script>
         // --- FITUR IZIN & SAKIT ---
         let statusAlternatif = "";
-        
+
         function showAbsenAlternatifModal(status) {
             statusAlternatif = status;
             document.getElementById('absenAlternatifTitle').textContent = `Form Pengajuan ${status}`;
@@ -125,18 +167,18 @@
         async function submitAbsenAlternatif() {
             if (isProcessing) return;
             isProcessing = true;
-            
+
             const reason = document.getElementById('absenAlternatifReason').value.trim();
             const lokasiText = reason ? `Alasan: ${reason}` : `Alasan: Tidak ada keterangan`;
-            
+
             closeAbsenAlternatifModal();
             document.getElementById('selectionMode').style.display = 'none';
-            
+
             const resultCard = document.getElementById('resultCard');
             const resultIcon = document.getElementById('resultIcon');
             const resultTitle = document.getElementById('resultTitle');
             const resultMessage = document.getElementById('resultMessage');
-            
+
             resultCard.style.display = 'block';
             resultIcon.innerHTML = `<i data-lucide="loader" class="spin" style="width: 48px; height: 48px; color: var(--primary);"></i>`;
             resultTitle.textContent = "Memproses...";
@@ -147,7 +189,7 @@
                 const today = new Date();
                 const dateString = today.toLocaleDateString('en-CA');
                 const timeString = today.toLocaleTimeString('id-ID', { hour12: false });
-                
+
                 const payload = {
                     date: dateString,
                     time: timeString,
@@ -175,7 +217,7 @@
                 resultTitle.textContent = "Berhasil!";
                 resultMessage.innerHTML = `Terima kasih <strong>${user.name}</strong>.<br>Absen <strong>${statusAlternatif}</strong> Anda tercatat pukul ${timeString}.`;
                 resultCard.style.borderTopColor = 'var(--success)';
-                
+
             } catch (error) {
                 resultIcon.innerHTML = `<i data-lucide="x-circle" style="width: 48px; height: 48px; color: var(--danger);"></i>`;
                 resultTitle.textContent = "Gagal!";
@@ -214,43 +256,38 @@
         function startScanner(status) {
             selectedStatus = status;
             document.getElementById('selectionMode').style.display = 'none';
-            
+
             const scannerArea = document.getElementById('scannerArea');
             scannerArea.style.display = 'block';
-            document.getElementById('scannerTitle').textContent = `Mencari Lokasi... (Harap Tunggu)`;
-            document.getElementById('resultCard').style.display = 'none';
+            document.getElementById('scannerTitle').textContent = `Scanner (Absen ${status})`;
 
-            // Dapatkan Lokasi GPS dengan senyap dan cepat
+            // 1. LANGSUNG BUKA KAMERA! Jangan tunggu GPS selesai, agar tidak macet / lemot.
+            initScanner();
+
+            // 2. Dapatkan Lokasi GPS di latar belakang secara senyap
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     async (position) => {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
+                        currentLocation = `GPS: ${lat}, ${lon}`; // Set awal jika Nominatim gagal/lemot
+
                         try {
                             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`);
                             const data = await response.json();
-                            currentLocation = data.display_name || `GPS: ${lat}, ${lon}`;
+                            if (data.display_name) currentLocation = data.display_name;
                         } catch (err) {
-                            console.error("Gagal reverse geocoding:", err);
-                            currentLocation = `GPS: ${lat}, ${lon}`;
+                            console.warn("Gagal reverse geocoding OSM, menggunakan koordinat GPS.");
                         }
-                        
-                        document.getElementById('scannerTitle').textContent = `Scanner (Absen ${status})`;
-                        initScanner();
                     },
                     (error) => {
-                        console.warn("Geolocation error:", error);
-                        // Hapus alert agar tidak mengganggu, langsung fallback saja
+                        console.warn("Geolocation ditolak atau error:", error);
                         currentLocation = "Akses Lokasi Ditolak / GPS Tidak Aktif";
-                        document.getElementById('scannerTitle').textContent = `Scanner (Absen ${status})`;
-                        initScanner();
                     },
-                    { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 } // Timeout dipercepat menjadi 5 detik
+                    { enableHighAccuracy: false, timeout: 7000, maximumAge: 10000 } // Gunakan low accuracy agar super instan
                 );
             } else {
                 currentLocation = "Browser tidak mendukung GPS";
-                document.getElementById('scannerTitle').textContent = `Scanner (Absen ${status})`;
-                initScanner();
             }
         }
 
@@ -258,26 +295,26 @@
             if (!html5QrcodeScanner) {
                 html5QrcodeScanner = new Html5QrcodeScanner(
                     "reader",
-                    { 
+                    {
                         fps: 30, // Ditingkatkan ke 30 FPS agar real-time dan super cepat
-                        qrbox: {width: 250, height: 250}, 
+                        qrbox: { width: 250, height: 250 },
                         aspectRatio: 1.0,
                         videoConstraints: { facingMode: "environment" } // Paksa kamera belakang
                     },
                     false);
-                html5QrcodeScanner.render(onScanSuccess, (err) => {});
-                
+                html5QrcodeScanner.render(onScanSuccess, (err) => { });
+
                 // Terjemahkan UI Scanner ke Bahasa Indonesia
                 setInterval(() => {
                     const btnPerm = document.getElementById('html5-qrcode-button-camera-permission');
                     if (btnPerm && btnPerm.innerText.includes('Request')) btnPerm.innerText = 'Izinkan Akses Kamera';
-                    
+
                     const btnStart = document.getElementById('html5-qrcode-button-camera-start');
                     if (btnStart && btnStart.innerText.includes('Start')) btnStart.innerText = 'Mulai Kamera';
-                    
+
                     const btnStop = document.getElementById('html5-qrcode-button-camera-stop');
                     if (btnStop && btnStop.innerText.includes('Stop')) btnStop.innerText = 'Matikan Kamera';
-                    
+
                     const fileScan = document.getElementById('html5-qrcode-anchor-scan-type-change');
                     if (fileScan) fileScan.style.display = 'none'; // Sembunyikan scan via file
                 }, 500);
@@ -303,21 +340,21 @@
                 osc.connect(ctx.destination);
                 osc.start();
                 osc.stop(ctx.currentTime + 0.2); // Beep selama 0.2 detik
-            } catch(e) {}
+            } catch (e) { }
         }
 
         async function onScanSuccess(decodedText, decodedResult) {
             if (isProcessing) return;
-            
+
             isProcessing = true;
             html5QrcodeScanner.pause();
             playSuccessBeep(); // Bunyikan Beep!
-            
+
             const resultCard = document.getElementById('resultCard');
             const resultIcon = document.getElementById('resultIcon');
             const resultTitle = document.getElementById('resultTitle');
             const resultMessage = document.getElementById('resultMessage');
-            
+
             resultCard.style.display = 'block';
             resultIcon.innerHTML = `<i data-lucide="loader" class="spin" style="width: 48px; height: 48px; color: var(--primary);"></i>`;
             resultTitle.textContent = "Memproses...";
@@ -329,9 +366,9 @@
                 const today = new Date();
                 const dateString = today.toLocaleDateString('en-CA');
                 const timeString = today.toLocaleTimeString('id-ID', { hour12: false });
-                
+
                 if (payload.type === "ABSENQ_ATTENDANCE" && payload.school === "UPT_SPF_SD_INPRES_KARUWISI_2") {
-                    
+
                     if (CONFIG.GOOGLE_SHEETS_API_URL === "URL_WEB_APP_ANDA_DISINI") {
                         const allRecords = JSON.parse(localStorage.getItem('demo_attendance') || '[]');
                         allRecords.push({
@@ -350,7 +387,7 @@
                             mode: 'no-cors', // Penting untuk Apps Script dari statis Vercel
                             headers: {
                                 // MENGGUNAKAN text/plain AGAR TIDAK DIBLOKIR PREFLIGHT CORS OLEH BROWSER
-                                'Content-Type': 'text/plain;charset=utf-8' 
+                                'Content-Type': 'text/plain;charset=utf-8'
                             },
                             body: JSON.stringify({
                                 date: dateString,
@@ -362,17 +399,17 @@
                             })
                         });
                     }
-                    
+
                     resultCard.style.borderTopColor = 'var(--success)';
                     resultIcon.innerHTML = '<i data-lucide="check-circle" style="width: 64px; height: 64px; color: var(--success);"></i>';
                     resultTitle.textContent = "Berhasil!";
-                    
+
                     if (CONFIG.GOOGLE_SHEETS_API_URL === "URL_WEB_APP_ANDA_DISINI") {
                         resultMessage.innerHTML = `Absen ${selectedStatus} dicatat.<br><small style="color:var(--text-muted)">Lokasi: ${currentLocation}</small><br><br><small style="color:var(--danger)">[Penyimpanan Lokal Aktif]</small>`;
                     } else {
                         resultMessage.innerHTML = `Absen ${selectedStatus} berhasil dicatat.<br><small style="color:var(--text-muted)">Lokasi: ${currentLocation}</small>`;
                     }
-                    
+
                 } else {
                     throw new Error("Barcode tidak valid untuk sekolah ini.");
                 }
@@ -383,7 +420,7 @@
                 resultMessage.textContent = "Barcode salah atau gagal menghubungi server.";
                 console.error(err);
             }
-            
+
             lucide.createIcons();
 
             // Tahan notifikasi selama 6 detik agar guru sempat melihatnya
@@ -408,7 +445,7 @@
         function saveNewPassword() {
             const newPass = document.getElementById('newPassword').value.trim();
             const confirmPass = document.getElementById('confirmPassword').value.trim();
-            
+
             if (newPass.length < 4) {
                 alert("Password terlalu pendek (Minimal 4 karakter)");
                 return;
@@ -417,41 +454,90 @@
                 alert("Konfirmasi password tidak cocok!");
                 return;
             }
-            
+
             // Simpan password ke LocalStorage
             const customPasswords = JSON.parse(localStorage.getItem('custom_passwords') || '{}');
             customPasswords[user.username] = newPass;
             localStorage.setItem('custom_passwords', JSON.stringify(customPasswords));
-            
+
             alert("Password berhasil diubah!");
             closePasswordModal();
         }
     </script>
-    
+
     <style>
-        #reader { border-radius: 8px; overflow: hidden; border: none !important; }
+        #reader {
+            border-radius: 8px;
+            overflow: hidden;
+            border: none !important;
+        }
+
         #reader button {
-            background: var(--primary); color: white; border: none; padding: 8px 16px;
-            border-radius: 4px; cursor: pointer; font-family: 'Roboto', sans-serif; margin: 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            margin: 10px;
         }
+
         #reader select {
-            background: #fff; color: var(--text-primary); border: 1px solid var(--border);
-            padding: 8px; border-radius: 4px; font-family: 'Roboto', sans-serif; margin: 10px;
+            background: #fff;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 8px;
+            border-radius: 4px;
+            font-family: 'Roboto', sans-serif;
+            margin: 10px;
         }
-        #reader a { color: var(--primary); display: none; }
+
+        #reader a {
+            color: var(--primary);
+            display: none;
+        }
 
         /* Modal Styles */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
+
         .modal-card {
-            background: white; padding: 2rem; border-radius: var(--radius-lg);
-            width: 90%; max-width: 400px; box-shadow: var(--shadow-lg);
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
         }
-        .modal-card h3 { margin-top: 0; margin-bottom: 1rem; color: var(--text-main); }
-        .modal-card input { margin-bottom: 1rem; }
-        .modal-buttons { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
+
+        .modal-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .modal-card input {
+            margin-bottom: 1rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
     </style>
 </body>
+
 </html>
