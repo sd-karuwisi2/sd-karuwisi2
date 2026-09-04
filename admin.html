@@ -1,108 +1,177 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - UPT SPF SD INPRES KARUWISI 2</title>
-    <link rel="stylesheet" href="./style.css">
+
+    <!-- Ultra-fast DNS Resolution & TLS Handshake (Vercel Optimization) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://script.google.com">
+    <link rel="preconnect" href="https://unpkg.com">
+
+    <link rel="stylesheet" href="./style.css?v=3.1">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Tambahkan library SheetJS untuk export Excel -->
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="./config.js"></script>
+    <style>
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #qrcode,
+            #qrcode * {
+                visibility: visible;
+            }
+
+            #qrcode {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%) scale(2);
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <div class="container">
-        <div class="school-header">
-            <h1>UPT SPF SD INPRES KARUWISI 2</h1>
-            <p>Dashboard Administrator Absensi Guru</p>
+    <!-- Premium Top Navigation -->
+    <nav class="card" style="border-radius: 0; border-left: none; border-right: none; border-top: none;">
+        <div class="container py-2 flex justify-between items-center md:flex-col md:gap-4">
+            <div class="flex items-center gap-3">
+                <i data-lucide="layout-dashboard" class="text-primary" style="width: 28px; height: 28px;"></i>
+                <div>
+                    <h1 class="text-xl m-0 font-extrabold" style="letter-spacing: -0.02em;">UPT SPF SD INPRES KARUWISI 2
+                    </h1>
+                    <p class="text-xs text-muted font-medium">Dashboard Administrator</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <div
+                        style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                        A</div>
+                    <span class="font-semibold text-sm">Admin</span>
+                </div>
+                <button onclick="logout()" class="btn btn-danger btn-ghost" style="padding: 0.5rem 0.75rem;">
+                    <i data-lucide="log-out"></i> Keluar
+                </button>
+            </div>
         </div>
+    </nav>
 
-        <nav class="navbar">
-            <div class="nav-brand">
-                <i data-lucide="layout-dashboard"></i> Panel Admin
-            </div>
-            <div class="nav-user">
-                <span>Admin</span>
-                <button onclick="showChangePasswordModal()" class="btn btn-outline" style="padding: 0.5rem 1rem; margin-right: 0.5rem;">
-                    <i data-lucide="key" style="width: 18px; height: 18px;"></i> Password
-                </button>
-                <button onclick="logout()" class="btn btn-outline" style="padding: 0.5rem 1rem; color: var(--danger);">
-                    <i data-lucide="log-out" style="width: 18px; height: 18px;"></i> Keluar
-                </button>
-            </div>
-        </nav>
+    <!-- Main Dashboard Area -->
+    <div class="container mt-4">
 
-        <div class="dashboard-grid" style="margin-bottom: 2rem;">
-            <!-- Barcode Statis Card -->
-            <div class="card" style="padding: 2rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                <h2 style="margin-bottom: 0.5rem;">Barcode Absensi Utama</h2>
-                <p style="margin-bottom: 1.5rem; font-size: 0.95rem;">Cetak dan tempelkan barcode ini di dinding sekolah. Guru cukup men-scan barcode ini setiap hari.</p>
-                
-                <div id="qrcode"></div>
-                
-                <button onclick="window.print()" class="btn btn-primary" style="margin-top: 1.5rem; width: 100%; max-width: 250px;">
-                    <i data-lucide="printer"></i> Cetak Barcode
-                </button>
-                <style>
-                    @media print {
-                        body * { visibility: hidden; }
-                        #qrcode, #qrcode * { visibility: visible; }
-                        #qrcode { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(2); border: none; box-shadow: none; }
-                    }
-                </style>
-            </div>
-
-            <!-- Log Table Card -->
-            <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                <div class="stat-card card">
-                    <div class="stat-icon">
-                        <i data-lucide="users"></i>
-                    </div>
-                    <div class="stat-content">
-                        <p>Total Data Absen Hari Ini</p>
-                        <h3 id="totalHadir">0</h3>
+        <!-- Dashboard Summary & Quick Actions -->
+        <div class="grid grid-cols-4 md:grid-cols-1 gap-6 mb-8">
+            <!-- Total Card -->
+            <div class="card p-6 flex flex-col justify-center col-span-1">
+                <p class="text-xs text-muted font-bold mb-4" style="text-transform: uppercase; letter-spacing: 0.05em;">
+                    Total Data Absen Hari Ini</p>
+                <div class="flex items-center justify-between">
+                    <span class="text-3xl font-extrabold" id="totalHadir">0</span>
+                    <div class="shrink-0"
+                        style="width: 56px; height: 56px; border-radius: 16px; background: #e0e7ff; color: var(--primary); display: flex; align-items: center; justify-content: center;">
+                        <i data-lucide="users" style="width: 28px; height: 28px;"></i>
                     </div>
                 </div>
-                
-                <div class="card" style="padding: 1.5rem; flex-grow: 1;">
-                    <div class="d-flex justify-between align-center" style="margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
-                        <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="clipboard-list" style="color: var(--primary);"></i> Log Kehadiran
-                            <div class="live-indicator"><div class="live-dot"></div> Live</div>
-                        </h2>
-                        <div class="d-flex align-center gap-4">
-                            <span id="currentDate" style="font-weight: 600; color: var(--text-muted); font-size: 0.95rem;"></span>
-                            
-                            <button onclick="downloadExcel()" class="btn btn-success" style="padding: 0.5rem 1rem;" title="Download Data ke Excel">
-                                <i data-lucide="file-spreadsheet" style="width: 18px; height: 18px;"></i> Excel
-                            </button>
-                            
-                            <button onclick="loadAttendance()" class="btn btn-outline" style="padding: 0.5rem 1rem;" id="btnRefresh">
-                                <i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i> Refresh
-                            </button>
+            </div>
+
+            <!-- Quick Actions / Scanner -->
+            <div class="card p-6 col-span-3 md:col-span-1 flex items-center gap-6 md:flex-col">
+                <div class="flex-1">
+                    <h2 class="text-xl font-bold mb-4">Barcode Absensi Utama</h2>
+                    <div class="flex items-center gap-3 mb-6 md:justify-center" style="user-select: none;">
+                        <div class="flex flex-col items-center gap-1">
+                            <div
+                                style="background: #f1f5f9; padding: 0.6rem; border-radius: 50%; color: var(--text-muted);">
+                                <i data-lucide="printer" style="width: 20px; height: 20px;"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-muted">1. Cetak</span>
+                        </div>
+                        <div style="color: var(--border);"><i data-lucide="chevron-right"
+                                style="width: 16px; height: 16px;"></i></div>
+                        <div class="flex flex-col items-center gap-1">
+                            <div
+                                style="background: #f1f5f9; padding: 0.6rem; border-radius: 50%; color: var(--text-muted);">
+                                <i data-lucide="map-pin" style="width: 20px; height: 20px;"></i>
+                            </div>
+                            <span class="text-xs font-semibold text-muted">2. Tempel</span>
+                        </div>
+                        <div style="color: var(--border);"><i data-lucide="chevron-right"
+                                style="width: 16px; height: 16px;"></i></div>
+                        <div class="flex flex-col items-center gap-1">
+                            <div
+                                style="background: #e0e7ff; padding: 0.6rem; border-radius: 50%; color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);">
+                                <i data-lucide="scan-line" style="width: 20px; height: 20px;"></i>
+                            </div>
+                            <span class="text-xs font-bold text-primary">3. Scan</span>
                         </div>
                     </div>
-                    
-                    <div class="table-container">
-                        <table id="attendanceTable">
-                            <thead>
-                                <tr>
-                                    <th>Waktu</th>
-                                    <th>Nama Guru</th>
-                                    <th>Kelas</th>
-                                    <th>Status</th>
-                                    <th>Lokasi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="5" style="text-align: center; padding: 2rem;">Memuat data...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <button onclick="printBarcode()" class="btn btn-primary md:btn-block">
+                        <i data-lucide="printer"></i> Cetak Barcode (PDF)
+                    </button>
                 </div>
+
+                <!-- The QR Code visual container -->
+                <div class="shrink-0"
+                    style="padding: 1rem; background: white; border: 1px solid var(--border); border-radius: var(--radius-md);">
+                    <div id="qrcode"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Main Log Table -->
+        <div class="card p-6">
+            <!-- Table Header Actions -->
+            <div class="flex justify-between items-end mb-6 md:flex-col md:items-start md:gap-4"
+                style="border-bottom: 1px solid var(--border-light); padding-bottom: 1.25rem;">
+                <div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <i data-lucide="clipboard-list" class="text-primary" style="width: 24px; height: 24px;"></i>
+                        <h2 class="text-xl m-0 font-bold">Log Kehadiran Guru</h2>
+                        <div class="live-indicator">
+                            <div class="live-dot"></div> Live
+                        </div>
+                    </div>
+                    <p id="currentDate" class="text-sm text-muted m-0 font-medium"></p>
+                </div>
+
+                <div class="flex items-center gap-2 md:w-full md:flex-wrap">
+                    <button onclick="loadAttendance()" class="btn btn-outline md:flex-1" id="btnRefresh">
+                        <i data-lucide="refresh-cw"></i> Refresh
+                    </button>
+                    <button onclick="downloadExcel()" class="btn btn-success md:flex-1" title="Download Data ke Excel">
+                        <i data-lucide="file-spreadsheet"></i> Download Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- The Table -->
+            <div class="table-container">
+                <table id="attendanceTable">
+                    <thead>
+                        <tr>
+                            <th>Waktu Absen</th>
+                            <th>Nama Guru</th>
+                            <th>Kelas</th>
+                            <th>Status Kehadiran</th>
+                            <th>Posisi (GPS)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="5" class="text-center p-8 text-muted">Memuat data secara realtime...</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -123,9 +192,9 @@
 
         // Set Current Date
         const today = new Date();
-        const dateString = today.toISOString().split('T')[0];
+        const dateString = today.toLocaleDateString('en-CA'); // FIX BUG ZONA WAKTU: Pastikan selalu sama dengan waktu lokal Guru
         document.getElementById('currentDate').textContent = today.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        
+
         // STATIC Payload for the scanner
         const barcodePayload = JSON.stringify({
             type: "ABSENQ_ATTENDANCE",
@@ -136,12 +205,17 @@
         // Generate QR Code
         new QRCode(document.getElementById("qrcode"), {
             text: barcodePayload,
-            width: 200,
-            height: 200,
-            colorDark : "#0f172a",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
+            width: 160,
+            height: 160,
+            colorDark: "#0f172a",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
         });
+
+        // Print functionality
+        function printBarcode() {
+            window.print();
+        }
 
         // Simpan data mentah untuk keperluan Export Excel
         let currentRecordsData = [];
@@ -153,19 +227,19 @@
             const tbody = document.querySelector('#attendanceTable tbody');
             const totalHadir = document.getElementById('totalHadir');
             const btn = document.getElementById('btnRefresh');
-            
+
             if (!isAuto) {
                 btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width: 18px; height: 18px;"></i> Refresh';
                 lucide.createIcons();
             }
-            
+
             let records = [];
 
             if (CONFIG.GOOGLE_SHEETS_API_URL === "URL_WEB_APP_ANDA_DISINI") {
                 // FALLBACK DEMO MODE
                 const allRecords = JSON.parse(localStorage.getItem('demo_attendance') || '[]');
                 records = allRecords.filter(r => r.date === dateString);
-                
+
                 if (!document.getElementById('demoWarning')) {
                     const warningDiv = document.createElement('div');
                     warningDiv.id = 'demoWarning';
@@ -182,14 +256,14 @@
                     const fetchUrl = `${CONFIG.GOOGLE_SHEETS_API_URL}?t=${new Date().getTime()}`;
                     const response = await fetch(fetchUrl);
                     const allRecords = await response.json();
-                    
+
                     // Filter di sisi klien
                     records = allRecords.filter(r => {
                         if (!r.date) return false;
-                        
+
                         // 1. Jika teks persis sama (misal "2026-08-30")
                         if (String(r.date) === dateString) return true;
-                        
+
                         // 2. Jika Google Sheets mengubahnya menjadi format waktu ISO (contoh: "2026-08-29T16:00:00.000Z")
                         try {
                             const d = new Date(r.date);
@@ -198,13 +272,13 @@
                                 // Cara teraman mengecek adalah mencocokkan substring ISO
                                 const iso = d.toISOString(); // "2026-08-29T..." atau "2026-08-30T..."
                                 if (iso.includes(dateString)) return true;
-                                
+
                                 // Coba format lokal (en-CA mengembalikan YYYY-MM-DD)
                                 const local = d.toLocaleDateString('en-CA');
                                 if (local === dateString) return true;
                             }
-                        } catch(e) {}
-                        
+                        } catch (e) { }
+
                         // 3. Pengecekan longgar
                         return String(r.date).includes(dateString);
                     });
@@ -216,11 +290,11 @@
                     return;
                 }
             }
-            
+
             currentRecordsData = records; // Simpan ke memori global
             totalHadir.textContent = records.length;
             tbody.innerHTML = '';
-            
+
             if (records.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Belum ada log absen hari ini.</td></tr>';
             } else {
@@ -234,10 +308,10 @@
                     } else {
                         statusBadge = `<span class="badge badge-primary">${record.status}</span>`;
                     }
-                    
+
                     let lokasiText = record.lokasi || "Tidak ada data";
                     let lokasiHtml = `<td style="font-size: 0.85rem; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${lokasiText}">${lokasiText}</td>`;
-                    
+
                     // Jika berisi kata GPS, buat jadi link peta
                     if (lokasiText.startsWith("GPS: ")) {
                         const coords = lokasiText.replace("GPS: ", "");
@@ -256,7 +330,7 @@
                     tbody.appendChild(tr);
                 });
             }
-            
+
             if (!isAuto) {
                 btn.innerHTML = '<i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i> Refresh';
                 lucide.createIcons();
@@ -268,22 +342,22 @@
                     const ctx = new (window.AudioContext || window.webkitAudioContext)();
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
-                    
+
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(1200, ctx.currentTime);
                     osc.frequency.exponentialRampToValueAtTime(1800, ctx.currentTime + 0.1);
-                    
+
                     gain.gain.setValueAtTime(0.5, ctx.currentTime);
                     gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-                    
+
                     osc.connect(gain);
                     gain.connect(ctx.destination);
-                    
+
                     osc.start();
                     osc.stop(ctx.currentTime + 0.5);
-                } catch(e) {}
+                } catch (e) { }
             }
-            
+
             previousRecordsLength = records.length;
             isFirstLoad = false;
         }
@@ -313,22 +387,22 @@
 
             // Lebarkan kolom biar rapi
             const wscols = [
-                {wch: 5},  // No
-                {wch: 15}, // Tanggal
-                {wch: 15}, // Waktu
-                {wch: 30}, // Nama Guru
-                {wch: 10}, // Kelas
-                {wch: 15}, // Status
-                {wch: 50}  // Lokasi
+                { wch: 5 },  // No
+                { wch: 15 }, // Tanggal
+                { wch: 15 }, // Waktu
+                { wch: 30 }, // Nama Guru
+                { wch: 10 }, // Kelas
+                { wch: 15 }, // Status
+                { wch: 50 }  // Lokasi
             ];
             worksheet['!cols'] = wscols;
 
             // Buat file dan trigger download
             XLSX.writeFile(workbook, `Laporan_Absensi_${dateString}.xlsx`);
         }
-        
+
         loadAttendance();
-        
+
         // --- FITUR LIVE SYNC (AUTO-POLLING 3 DETIK) ---
         setInterval(() => {
             loadAttendance(true);
@@ -348,7 +422,7 @@
         function saveNewPassword() {
             const newPass = document.getElementById('newPassword').value.trim();
             const confirmPass = document.getElementById('confirmPassword').value.trim();
-            
+
             if (newPass.length < 4) {
                 alert("Password terlalu pendek (Minimal 4 karakter)");
                 return;
@@ -357,12 +431,12 @@
                 alert("Konfirmasi password tidak cocok!");
                 return;
             }
-            
+
             // Simpan password ke LocalStorage
             const customPasswords = JSON.parse(localStorage.getItem('custom_passwords') || '{}');
             customPasswords['admin'] = newPass; // Admin selalu username 'admin'
             localStorage.setItem('custom_passwords', JSON.stringify(customPasswords));
-            
+
             alert("Password berhasil diubah!");
             closePasswordModal();
         }
@@ -381,8 +455,10 @@
                 <input type="password" id="confirmPassword" class="form-control" placeholder="Ulangi password baru">
             </div>
             <div class="modal-buttons">
-                <button onclick="closePasswordModal()" class="btn btn-outline" style="border: 1px solid var(--border); padding: 0.5rem 1rem;">Batal</button>
-                <button onclick="saveNewPassword()" class="btn btn-primary" style="padding: 0.5rem 1rem;">Simpan</button>
+                <button onclick="closePasswordModal()" class="btn btn-outline"
+                    style="border: 1px solid var(--border); padding: 0.5rem 1rem;">Batal</button>
+                <button onclick="saveNewPassword()" class="btn btn-primary"
+                    style="padding: 0.5rem 1rem;">Simpan</button>
             </div>
         </div>
     </div>
@@ -390,16 +466,44 @@
     <style>
         /* Modal Styles */
         .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
+
         .modal-card {
-            background: white; padding: 2rem; border-radius: var(--radius-lg);
-            width: 90%; max-width: 400px; box-shadow: var(--shadow-lg);
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 400px;
+            box-shadow: var(--shadow-lg);
         }
-        .modal-card h3 { margin-top: 0; margin-bottom: 1rem; color: var(--text-main); }
-        .modal-card input { margin-bottom: 1rem; }
-        .modal-buttons { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1rem; }
+
+        .modal-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .modal-card input {
+            margin-bottom: 1rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
     </style>
 </body>
+
 </html>
