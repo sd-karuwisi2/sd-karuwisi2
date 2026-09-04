@@ -3,5 +3,5 @@
 // Nanti, ganti 'URL_WEB_APP_ANDA_DISINI' dengan URL asli yang didapat dari Google Apps Script.
 
 const CONFIG = {
-    GOOGLE_SHEETS_API_URL: "https://script.google.com/macros/s/AKfycbzK4pbM-wfEhbTAr3Mrm1e3V-5xg91gsWBCAl0zkR1P6Mzg4hFv7nBs20TVhtJR9yWs/exec" 
+    GOOGLE_SHEETS_API_URL: "https://script.google.com/macros/s/AKfycbxuSfzBt3AMd3EvjR7tD8med9NUZC8zfuywD4bWjUA0hQB1vuMMPN7ruS1RLbaPH4U4/exec" 
 };
