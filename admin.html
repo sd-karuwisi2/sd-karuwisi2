@@ -68,7 +68,8 @@
                 <div class="card" style="padding: 1.5rem; flex-grow: 1;">
                     <div class="d-flex justify-between align-center" style="margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
                         <h2 style="margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                            <i data-lucide="clipboard-list" style="color: var(--primary);"></i> Log Kehadiran Hari Ini
+                            <i data-lucide="clipboard-list" style="color: var(--primary);"></i> Log Kehadiran
+                            <div class="live-indicator"><div class="live-dot"></div> Live</div>
                         </h2>
                         <div class="d-flex align-center gap-4">
                             <span id="currentDate" style="font-weight: 600; color: var(--text-muted); font-size: 0.95rem;"></span>
@@ -144,15 +145,19 @@
 
         // Simpan data mentah untuk keperluan Export Excel
         let currentRecordsData = [];
+        let previousRecordsLength = 0;
+        let isFirstLoad = true;
 
         // Load Attendance from Google Sheets or LocalStorage (Demo Mode)
-        async function loadAttendance() {
+        async function loadAttendance(isAuto = false) {
             const tbody = document.querySelector('#attendanceTable tbody');
             const totalHadir = document.getElementById('totalHadir');
             const btn = document.getElementById('btnRefresh');
             
-            btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width: 18px; height: 18px;"></i> Refresh';
-            lucide.createIcons();
+            if (!isAuto) {
+                btn.innerHTML = '<i data-lucide="loader-2" class="spin" style="width: 18px; height: 18px;"></i> Refresh';
+                lucide.createIcons();
+            }
             
             let records = [];
 
@@ -252,8 +257,35 @@
                 });
             }
             
-            btn.innerHTML = '<i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i> Refresh';
-            lucide.createIcons();
+            if (!isAuto) {
+                btn.innerHTML = '<i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i> Refresh';
+                lucide.createIcons();
+            }
+
+            // Jika ada data baru yang masuk (dan bukan load pertama kali)
+            if (!isFirstLoad && records.length > previousRecordsLength) {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1200, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1800, ctx.currentTime + 0.1);
+                    
+                    gain.gain.setValueAtTime(0.5, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+                    
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.5);
+                } catch(e) {}
+            }
+            
+            previousRecordsLength = records.length;
+            isFirstLoad = false;
         }
 
         // Fungsi Download Excel menggunakan SheetJS
@@ -294,7 +326,13 @@
             // Buat file dan trigger download
             XLSX.writeFile(workbook, `Laporan_Absensi_${dateString}.xlsx`);
         }
+        
         loadAttendance();
+        
+        // --- FITUR LIVE SYNC (AUTO-POLLING 3 DETIK) ---
+        setInterval(() => {
+            loadAttendance(true);
+        }, 3000);
 
         // --- FITUR GANTI PASSWORD ---
         function showChangePasswordModal() {
