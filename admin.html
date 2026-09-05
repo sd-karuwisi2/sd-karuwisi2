@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://script.google.com">
     <link rel="preconnect" href="https://unpkg.com">
 
-    <link rel="stylesheet" href="./style.css?v=3.1">
+    <link rel="stylesheet" href="./style.css?v=3.2">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Tambahkan library SheetJS untuk export Excel -->
@@ -255,32 +255,64 @@
                     // Tambahkan t= timestamp agar browser tidak melakukan cache (selalu update)
                     const fetchUrl = `${CONFIG.GOOGLE_SHEETS_API_URL}?t=${new Date().getTime()}`;
                     const response = await fetch(fetchUrl);
-                    const allRecords = await response.json();
+                    let allRecords = await response.json();
+                    
+                    // Handle jika Google Script membungkus data di dalam objek { data: [...] }
+                    if (allRecords && !Array.isArray(allRecords)) {
+                        if (Array.isArray(allRecords.data)) allRecords = allRecords.data;
+                        else if (Array.isArray(allRecords.records)) allRecords = allRecords.records;
+                        else allRecords = [];
+                    }
+
+                    // Normalisasi Record (Mengantisipasi header Bahasa Indonesia / Uppercase / Array form)
+                    const normalizedRecords = allRecords.map(r => {
+                        let n = { date: '', time: '', name: '', kelas: '', status: '', lokasi: '' };
+                        if (Array.isArray(r)) {
+                            n = { date: r[0], time: r[1], name: r[2], kelas: r[3], status: r[4], lokasi: r[5] };
+                        } else {
+                            for (let k in r) {
+                                let key = k.toLowerCase().trim();
+                                if (key.includes('date') || key.includes('tanggal')) n.date = r[k];
+                                else if (key.includes('time') || key.includes('waktu')) n.time = r[k];
+                                else if (key.includes('name') || key.includes('nama')) n.name = r[k];
+                                else if (key.includes('kelas') || key.includes('class')) n.kelas = r[k];
+                                else if (key.includes('status') || key.includes('kehadiran')) n.status = r[k];
+                                else if (key.includes('lokasi') || key.includes('posisi') || key.includes('gps')) n.lokasi = r[k];
+                            }
+                        }
+                        return n;
+                    });
 
                     // Filter di sisi klien
-                    records = allRecords.filter(r => {
+                    records = normalizedRecords.filter(r => {
                         if (!r.date) return false;
+                        let rDateStr = String(r.date);
 
-                        // 1. Jika teks persis sama (misal "2026-08-30")
-                        if (String(r.date) === dateString) return true;
+                        // 1. Sama persis dengan string (e.g., "2026-09-05")
+                        if (rDateStr === dateString) return true;
+                        if (rDateStr.includes(dateString)) return true;
 
-                        // 2. Jika Google Sheets mengubahnya menjadi format waktu ISO (contoh: "2026-08-29T16:00:00.000Z")
+                        // 2. Format parsing yang paling tangguh
                         try {
-                            const d = new Date(r.date);
+                            const d = new Date(rDateStr);
                             if (!isNaN(d.getTime())) {
-                                // Google Sheets menyimpan string date sebagai midnight UTC atau Local. 
-                                // Cara teraman mengecek adalah mencocokkan substring ISO
-                                const iso = d.toISOString(); // "2026-08-29T..." atau "2026-08-30T..."
-                                if (iso.includes(dateString)) return true;
-
-                                // Coba format lokal (en-CA mengembalikan YYYY-MM-DD)
                                 const local = d.toLocaleDateString('en-CA');
                                 if (local === dateString) return true;
+                                
+                                // Format "D/M/YYYY" atau "DD/MM/YYYY" lokal
+                                const idLocal = d.toLocaleDateString('id-ID'); // "5/9/2026"
+                                const targetId = today.toLocaleDateString('id-ID');
+                                if (idLocal === targetId) return true;
                             }
                         } catch (e) { }
 
-                        // 3. Pengecekan longgar
-                        return String(r.date).includes(dateString);
+                        // 3. Fallback kasar (cari angka tanggal bulan tahun)
+                        const [year, month, day] = dateString.split('-');
+                        if (rDateStr.includes(year) && rDateStr.includes(parseInt(day).toString())) {
+                            return true;
+                        }
+
+                        return false;
                     });
                 } catch (error) {
                     console.error("Error fetching data:", error);
