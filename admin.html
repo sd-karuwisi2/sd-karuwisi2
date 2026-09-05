@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://script.google.com">
     <link rel="preconnect" href="https://unpkg.com">
 
-    <link rel="stylesheet" href="./style.css?v=3.2">
+    <link rel="stylesheet" href="./style.css?v=3.3">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- Tambahkan library SheetJS untuk export Excel -->
@@ -328,7 +328,21 @@
             tbody.innerHTML = '';
 
             if (records.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Belum ada log absen hari ini.</td></tr>';
+                let debugInfo = "";
+                try {
+                    const rawJson = JSON.stringify(allRecords || {}).substring(0, 1000);
+                    debugInfo = `<div style="text-align:left; background:#f1f5f9; padding:10px; border-radius:8px; font-size:11px; max-width:100%; overflow-x:auto; margin-top:1rem; border:1px solid var(--danger); color:var(--text-main);">
+                        <strong style="color:var(--danger);"><i data-lucide="bug" style="width:14px;height:14px;vertical-align:middle;"></i> MODE DIAGNOSIS (SISTEM MEMBACA 0 DATA HARI INI)</strong><br><br>
+                        <strong>Data Mentah dari Google Script:</strong><br>
+                        ${rawJson}<br><br>
+                        <strong>Tanggal yang dicari sistem:</strong> ${dateString}<br>
+                    </div>`;
+                } catch(e) {}
+                
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                    Belum ada log absen hari ini.
+                    ${debugInfo}
+                </td></tr>`;
             } else {
                 records.forEach(record => {
                     const tr = document.createElement('tr');
